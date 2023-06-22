@@ -83,7 +83,7 @@ class Obstacle(pygame.sprite.Sprite):
         super().__init__()
         sprite_sheet_image = pygame.image.load('graphics/badniks.png').convert_alpha()
 
-        if type == 'spike':
+        if type == 'spike_sky':
             spike1 = pygame.image.load('graphics/spike.png').convert_alpha()
             spike1 = pygame.transform.scale(spike1, (60, 60))
             spike2 = spike1
@@ -91,6 +91,14 @@ class Obstacle(pygame.sprite.Sprite):
             self.frames = [spike1, spike2]
             y_pos = 245
         
+        elif type == 'spike_ground':
+            spike1 = pygame.image.load('graphics/spike.png').convert_alpha()
+            spike1 = pygame.transform.scale(spike1, (60, 60))
+            spike2 = spike1
+
+            self.frames = [spike1, spike2]
+            y_pos = 300
+
         elif type == 'bee':
             bee1 = pygame.Surface((45, 27), pygame.SRCALPHA, 32).convert_alpha()
             bee1.blit(sprite_sheet_image,(0, 0), (12, 112, 45, 27))
@@ -149,7 +157,7 @@ class Obstacle(pygame.sprite.Sprite):
 def display_score():
     current_time = int(pygame.time.get_ticks() / 1000) - start_time
     score_surface = test_font.render(f'Score: {current_time}', False, 'White')
-    score_rect = score_surface.get_rect(center = (400, 50))
+    score_rect = score_surface.get_rect(center = (400, 30))
     screen.blit(score_surface, score_rect)
     return current_time
     
@@ -165,11 +173,10 @@ pygame.init()
 screen = pygame.display.set_mode((800, 400))
 pygame.display.set_caption('Sonic Runner')
 clock = pygame.time.Clock()
-test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
+test_font = pygame.font.Font('font/font.ttf', 50)
 game_active = False
 start_time = 0
 score = 0
-music = True
 playlist = ['audio/song1.mp3', 'audio/song2.mp3', 'audio/song3.mp3', 'audio/song4.mp3']
 pygame.mixer.music.load(choice(playlist))
 pygame.mixer.music.play(loops=-1)
@@ -190,10 +197,8 @@ ground_surface = pygame.Surface((200, 50), pygame.SRCALPHA, 32).convert_alpha()
 ground_surface.blit(ground_image,(0, 0), (20, 97, 800, 50))
 ground_surface = pygame.transform.scale(ground_surface, (800, 150))
 
-clock = pygame.time.Clock()
-
+# Variables for scrolling ground
 scroll = 0
-
 tiles = math.ceil(800 / ground_surface.get_width()) + 1
 
 # Intro screen
@@ -201,7 +206,7 @@ menu = pygame.image.load('graphics/menu.jpg').convert_alpha()
 menu = pygame.transform.scale(menu, (800, 400))
 
 game_message = test_font.render('Press SPACE to Start', False, 'White')
-game_message_rect = game_message.get_rect(center = (550, 30))
+game_message_rect = game_message.get_rect(center = (550, 23))
 
 # Timer
 obstacle_timer = pygame.USEREVENT + 1 # + 1 is needed, don't ask
@@ -223,7 +228,7 @@ while True:
         # Randomly spawn obstacles
         if game_active:
             if event.type == obstacle_timer and game_active:
-                obstacle_group.add(Obstacle(choice(['spike', 'bug', 'crab', 'bee'])))
+                obstacle_group.add(Obstacle(choice(['spike_sky', 'spike_ground', 'bug', 'crab', 'bee'])))
 
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -260,7 +265,7 @@ while True:
         screen.blit(menu, (0, 0))
 
         score_message = test_font.render(f'Your Score: {score}', False, (255, 255, 255))
-        score_message_rect = score_message.get_rect(center = (550, 30))
+        score_message_rect = score_message.get_rect(center = (550, 23))
         
         if score == 0:
             screen.blit(game_message, game_message_rect)
