@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         sonic_run3 = pygame.Surface((70, 75), pygame.SRCALPHA, 32).convert_alpha()
         sonic_run3.blit(sprite_sheet_image,(0, 0), (550, 270, 70, 75))
         
-        self.player_walk = [sonic_run1, sonic_run2, sonic_run3, sonic_run2] # player's animation cycles
+        self.player_run = [sonic_run1, sonic_run2, sonic_run3, sonic_run2] # player's animation cycles
         self.player_index = 0
 
         self.player_jump = pygame.Surface((60, 65), pygame.SRCALPHA, 32).convert_alpha()
@@ -27,8 +27,8 @@ class Player(pygame.sprite.Sprite):
         self.player_slide = pygame.Surface((75, 50), pygame.SRCALPHA, 32).convert_alpha()
         self.player_slide.blit(sprite_sheet_image,(0, 0), (375, 100, 75, 50))
 
-        self.image = self.player_walk[self.player_index]
-        self.rect = self.image.get_rect(midbottom = (100, 300))
+        self.image = self.player_run[self.player_index]
+        self.rect = self.image.get_rect(midbottom = (120, 300))
 
         self.gravity = 0
 
@@ -62,15 +62,16 @@ class Player(pygame.sprite.Sprite):
             self.image = self.player_jump
 
         elif self.slide:
+            i = 0
             self.rect.bottom = 320
             self.image = self.player_slide
             self.slide = False
         
         else:
             self.player_index += 0.1
-            if self.player_index >= len(self.player_walk):
+            if self.player_index >= len(self.player_run):
                 self.player_index = 0
-            self.image = self.player_walk[int(self.player_index)]
+            self.image = self.player_run[int(self.player_index)]
 
     def update(self):
         self.reset_position()
@@ -78,6 +79,39 @@ class Player(pygame.sprite.Sprite):
         self.apply_gravity()
         self.animation_state()
 
+class Companion(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        sprite_sheet_image = pygame.image.load('graphics/tails.png').convert_alpha()
+        sprite_sheet_image = pygame.transform.flip(sprite_sheet_image, True, False)
+
+        tails_fly1 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
+        tails_fly1.blit(sprite_sheet_image,(0, 0), (359, 750, 36, 40))
+        tails_fly1 = pygame.transform.scale(tails_fly1, (60, 65))
+
+        tails_fly2 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
+        tails_fly2.blit(sprite_sheet_image,(0, 0), (315, 750, 36, 40))
+        tails_fly2 = pygame.transform.scale(tails_fly2, (60, 65))
+
+        tails_fly3 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
+        tails_fly3.blit(sprite_sheet_image,(0, 0), (279, 750, 36, 40))
+        tails_fly3 = pygame.transform.scale(tails_fly3, (60, 65))
+
+        self.companion_fly = [tails_fly1, tails_fly2, tails_fly3]
+        self.companion_index = 0
+
+        self.image = self.companion_fly[self.companion_index]
+        self.rect = self.image.get_rect(midbottom = (35, 175))
+    
+    def animation(self):   
+        self.companion_index += 0.1
+        if self.companion_index >= len(self.companion_fly):
+            self.companion_index = 0
+        self.image = self.companion_fly[int(self.companion_index)]
+
+    def update(self):
+        self.animation()
+       
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, type):
         super().__init__()
@@ -97,7 +131,7 @@ class Obstacle(pygame.sprite.Sprite):
             spike2 = spike1
 
             self.frames = [spike1, spike2]
-            y_pos = 295
+            y_pos = 290
 
         elif type == 'bee':
             bee1 = pygame.Surface((45, 27), pygame.SRCALPHA, 32).convert_alpha()
@@ -179,11 +213,14 @@ start_time = 0
 score = 0
 playlist = ['audio/song1.mp3', 'audio/song2.mp3', 'audio/song3.mp3', 'audio/song4.mp3']
 pygame.mixer.music.load(choice(playlist))
-pygame.mixer.music.play(loops=-1)
+# pygame.mixer.music.play(loops=-1)
 
 # Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player())
+
+companion = pygame.sprite.GroupSingle()
+companion.add(Companion())
 
 obstacle_group = pygame.sprite.Group()
 
@@ -252,6 +289,10 @@ while True:
         player.draw(screen) # draw the sprite from class
         player.update() # update the sprite from class
 
+        companion.draw(screen)
+        companion.update()
+        companion.update()
+        
         obstacle_group.draw(screen)
         obstacle_group.update()
 
