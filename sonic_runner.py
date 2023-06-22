@@ -97,7 +97,7 @@ class Obstacle(pygame.sprite.Sprite):
             spike2 = spike1
 
             self.frames = [spike1, spike2]
-            y_pos = 300
+            y_pos = 295
 
         elif type == 'bee':
             bee1 = pygame.Surface((45, 27), pygame.SRCALPHA, 32).convert_alpha()
