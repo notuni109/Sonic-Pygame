@@ -87,21 +87,53 @@ class Companion(pygame.sprite.Sprite):
 
         tails_fly1 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
         tails_fly1.blit(sprite_sheet_image,(0, 0), (359, 750, 36, 40))
-        tails_fly1 = pygame.transform.scale(tails_fly1, (60, 65))
+        tails_fly1 = pygame.transform.scale(tails_fly1, (65, 70))
 
         tails_fly2 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
         tails_fly2.blit(sprite_sheet_image,(0, 0), (315, 750, 36, 40))
-        tails_fly2 = pygame.transform.scale(tails_fly2, (60, 65))
+        tails_fly2 = pygame.transform.scale(tails_fly2, (65, 70))
 
         tails_fly3 = pygame.Surface((36, 40), pygame.SRCALPHA, 32).convert_alpha()
         tails_fly3.blit(sprite_sheet_image,(0, 0), (279, 750, 36, 40))
-        tails_fly3 = pygame.transform.scale(tails_fly3, (60, 65))
+        tails_fly3 = pygame.transform.scale(tails_fly3, (65, 70))
 
         self.companion_fly = [tails_fly1, tails_fly2, tails_fly3]
         self.companion_index = 0
 
         self.image = self.companion_fly[self.companion_index]
         self.rect = self.image.get_rect(midbottom = (35, 175))
+    
+    def animation(self):   
+        self.companion_index += 0.1
+        if self.companion_index >= len(self.companion_fly):
+            self.companion_index = 0
+        self.image = self.companion_fly[int(self.companion_index)]
+
+    def update(self):
+        self.animation()
+
+class Boss(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        sprite_sheet_image = pygame.image.load('graphics/eggman.png').convert_alpha()
+
+        eggman1 = pygame.Surface((50, 48), pygame.SRCALPHA, 32).convert_alpha()
+        eggman1.blit(sprite_sheet_image,(0, 0), (60, 46, 50, 48))
+        eggman1 = pygame.transform.scale(eggman1, (105, 100))
+
+        eggman2 = pygame.Surface((50, 48), pygame.SRCALPHA, 32).convert_alpha()
+        eggman2.blit(sprite_sheet_image,(0, 0), (288, 46, 50, 48))
+        eggman2 = pygame.transform.scale(eggman2, (105, 100))
+
+        eggman3 = pygame.Surface((50, 48), pygame.SRCALPHA, 32).convert_alpha()
+        eggman3.blit(sprite_sheet_image,(0, 0), (392, 46, 50, 48))
+        eggman3 = pygame.transform.scale(eggman3, (105, 100))
+
+        self.companion_fly = [eggman1, eggman2, eggman3, eggman1, eggman1]
+        self.companion_index = 0
+
+        self.image = self.companion_fly[self.companion_index]
+        self.rect = self.image.get_rect(midbottom = (740, 160))
     
     def animation(self):   
         self.companion_index += 0.1
@@ -133,14 +165,27 @@ class Obstacle(pygame.sprite.Sprite):
             self.frames = [spike1, spike2]
             y_pos = 290
 
+        elif type == 'bat':
+            sprite_sheet_image = pygame.transform.flip(sprite_sheet_image, True, False)
+            bat1 = pygame.Surface((40, 34), pygame.SRCALPHA, 32).convert_alpha()
+            bat1.blit(sprite_sheet_image,(0, 0), (100, 500, 40, 34))
+            bat1 = pygame.transform.scale(bat1, (75, 65))
+            
+            bat2 = pygame.Surface((37, 34), pygame.SRCALPHA, 32).convert_alpha()
+            bat2.blit(sprite_sheet_image,(0, 0), (139, 500, 37, 34))
+            bat2 = pygame.transform.scale(bat2, (75, 65))
+
+            self.frames = [bat1, bat2]
+            y_pos = 245
+
         elif type == 'bee':
             bee1 = pygame.Surface((45, 27), pygame.SRCALPHA, 32).convert_alpha()
             bee1.blit(sprite_sheet_image,(0, 0), (12, 112, 45, 27))
-            bee1 = pygame.transform.scale(bee1, (80, 45))
+            bee1 = pygame.transform.scale(bee1, (80, 40))
             
             bee2 = pygame.Surface((45, 27), pygame.SRCALPHA, 32).convert_alpha()
             bee2.blit(sprite_sheet_image,(0, 0), (57, 112, 45, 27))
-            bee2 = pygame.transform.scale(bee2, (80, 45))
+            bee2 = pygame.transform.scale(bee2, (80, 40))
 
             self.frames = [bee1, bee2]
             y_pos = 245
@@ -213,7 +258,7 @@ start_time = 0
 score = 0
 playlist = ['audio/song1.mp3', 'audio/song2.mp3', 'audio/song3.mp3', 'audio/song4.mp3']
 pygame.mixer.music.load(choice(playlist))
-# pygame.mixer.music.play(loops=-1)
+pygame.mixer.music.play(loops=-1)
 
 # Groups
 player = pygame.sprite.GroupSingle()
@@ -221,6 +266,9 @@ player.add(Player())
 
 companion = pygame.sprite.GroupSingle()
 companion.add(Companion())
+
+boss = pygame.sprite.GroupSingle()
+boss.add(Boss())
 
 obstacle_group = pygame.sprite.Group()
 
@@ -265,7 +313,7 @@ while True:
         # Randomly spawn obstacles
         if game_active:
             if event.type == obstacle_timer and game_active:
-                obstacle_group.add(Obstacle(choice(['spike_sky', 'spike_ground', 'bug', 'crab', 'bee'])))
+                obstacle_group.add(Obstacle(choice(['spike_sky', 'spike_ground', 'bug', 'crab', 'bee', 'bat'])))
 
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -280,7 +328,7 @@ while True:
         while(i < tiles):
             screen.blit(ground_surface, (ground_surface.get_width()*i + scroll, 295))
             i += 1
-        scroll -= 10
+        scroll -= 8
         if abs(scroll) > ground_surface.get_width():
             scroll = 0
 
@@ -292,6 +340,9 @@ while True:
         companion.draw(screen)
         companion.update()
         companion.update()
+
+        boss.draw(screen)
+        boss.update()
         
         obstacle_group.draw(screen)
         obstacle_group.update()
