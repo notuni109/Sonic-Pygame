@@ -129,7 +129,7 @@ class Boss(pygame.sprite.Sprite):
         eggman3.blit(sprite_sheet_image,(0, 0), (392, 46, 50, 48))
         eggman3 = pygame.transform.scale(eggman3, (105, 100))
 
-        self.companion_fly = [eggman1, eggman2, eggman3, eggman1, eggman1]
+        self.companion_fly = [eggman1, eggman2, eggman3, eggman1, eggman1, eggman1]
         self.companion_index = 0
 
         self.image = self.companion_fly[self.companion_index]
